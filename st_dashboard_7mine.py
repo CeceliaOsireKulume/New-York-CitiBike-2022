@@ -50,74 +50,72 @@ if page == "Intro page":
 ########################################## DEFINE THE CHARTS ###############################################################
 
 
-### Create the dual axis line chart page ###
+  ### Create the dual axis line chart page ###
 
 elif page == 'Weather component and bike usage':
-
-fig_2 = make_subplots(specs=[[{"secondary_y": True}]])
-
-fig_2.add_trace(
+    fig_2 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig_2.add_trace(
     go.Scatter(
-        x=df['date'],
-        y=df['bike_rides_daily'],
-        name='Daily bike rides',
-        line=dict(color='blue')  
-    ),
-    secondary_y=False
-)
+    x=df['date'],
+    y=df['bike_rides_daily'],
+    name='Daily bike rides',
+    line=dict(color='blue')),
+    secondary_y=False)
 
-fig_2.add_trace(
+    fig_2.add_trace(
     go.Scatter(
-        x=df['date'],
-        y=df['AVGTemperature (°C)'],
-        name='Daily temperature',
-        line=dict(color='red')  
-    ),
-    secondary_y=True
-)
+    x=df['date'],
+    y=df['AVGTemperature (°C)'],
+    name='Daily temperature',
+    line=dict(color='red')),
+    secondary_y=True)
 
-fig_2.update_layout(
+    fig_2.update_layout(
     title='Daily Bike rides and temperatures in 2022',
-    height=600
-)
+    height=600)
 
-st.plotly_chart(fig_2, use_container_width=True)
-st.markdown("There is an obvious correlation between the rise and drop of temperatures and their relationship with the frequency of bike trips taken daily. As temperatures plunge, so does bike usage. This insight indicates that the shortage problem may be prevalent merely in the warmer months, approximately from May to October.")
+    st.plotly_chart(fig_2, use_container_width=True)
+    st.markdown("There is an obvious correlation between the rise and drop of temperatures and their relationship with the frequency of bike trips taken daily. As temperatures plunge, so does bike usage. This insight indicates that the shortage problem may be prevalent merely in the warmer months, approximately from May to October.")
 
-### Most popular stations page
+    ### Most popular stations page
 
     # Create the season variable
 
 elif page == 'Most popular stations':
-    
-    # Create the filter on the side bar
-    
     with st.sidebar:
-        season_filter = st.multiselect(label= 'Select the season', options=df['season'].unique(),
-    default=df['season'].unique())
-
+        season_filter = st.multiselect(
+            label='Select the season', 
+            options=df['season'].unique(),
+            default=df['season'].unique()
+        )
     df1 = df.query('season == @season_filter')
-    
+        
     # Define the total rides
+
     total_rides = float(df1['bike_rides_daily'].count())    
     st.metric(label = 'Total Bike Rides', value= numerize(total_rides))
 
-## Bar chart
+    ## Bar chart
 
-df1['value'] = 1 
-    df_groupby_bar = df1.groupby('start_station', as_index = False).agg({'value': 'sum'})
+    df1['value'] = 1 
+    df1['start_station1'] = df1.index
+    print(df1.columns)
+    df_groupby_bar = df1.groupby('start_station1', as_index = False).agg({'value': 'sum'})
     top20 = df_groupby_bar.nlargest(20, 'value')
-    fig = go.Figure(go.Bar(x = top20['start_station'], y = top20['value']))
-
-fig = go.Figure(go.Bar(x = top20['start_station'], y = top20['value'], marker={'color': top20['value'],'colorscale': 'Blues'}))
-fig.update_layout(
+    print(top20)
+    fig = go.Figure(go.Bar(x = top20['start_station1'], y = top20['value']))
+    
+    
+    fig = go.Figure(go.Bar(x = top20['start_station1'], y = top20['value'], marker={'color':      top20['value'],'colorscale': 'Blues'}))
+    fig.update_layout(
     title = 'Top 20 most popular bike stations in NewYork',
     xaxis_title = 'Start stations',
     yaxis_title ='Sum of trips',
     width = 900, height = 600
-)
-st.plotly_chart(fig, use_container_width=True)
-st.markdown("From the bar chart it is clear that there are some start stations that are more popular than others - in the top 3 we can see Grove St. PATH, South Waterfront  Walkway - Sinatra as well as Hoboken Terminal - River St & Hudson Pl. There is a big jump between the highest and lowest bars of the plot, indicating some clear preferences for the leading stations. This is a finding that we could cross reference with the interactive map that you can access through the side bar select box.")
+ )
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown("From the bar chart it is clear that there are some start stations that are more popular than others - in the top 3 we can see Grove St. PATH, South Waterfront  Walkway - Sinatra as well as Hoboken Terminal - River St & Hudson Pl. There is a big jump between the highest and lowest bars of the plot, indicating some clear preferences for the leading stations. This is a finding that we could cross reference with the interactive map that you can access through the side bar select box.")
+
 
 elif page == 'Interactive map with aggregated bike trips': 
 
@@ -128,8 +126,9 @@ elif page == 'Interactive map with aggregated bike trips':
     path_to_html = "New York CitiBikes Bikes Trips Aggregated.html" 
 
     # Read the file and store in variable
-with open(path_to_html, 'r', encoding='utf-8') as f:
-    html_data = f.read()
+    
+    with open(path_to_html, 'r', encoding='utf-8') as f:
+        html_data = f.read()
         
 ## Show in webpage
     st.header("Aggregated Bike Trips in NewYork")
